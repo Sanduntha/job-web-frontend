@@ -15,9 +15,103 @@ import {
   Divider,
   Grid,
 } from "@mui/material";
+import { styled } from "@mui/material/styles";
 import { useAuth } from "../../context/AuthContext";
 import axiosInstance from "../../api/axiosInstance";
 import Swal from "sweetalert2";
+
+const StyledBox = styled(Box)(({ theme }) => ({
+  padding: theme.spacing(3),
+  backgroundColor: "#f0f4f8",
+  minHeight: "100vh",
+  fontFamily: "'Roboto', sans-serif",
+}));
+
+const StyledCard = styled(Card)(({ theme }) => ({
+  marginBottom: theme.spacing(2),
+  background: "linear-gradient(145deg, #ffffff, #f0f4f8)",
+  borderRadius: theme.shape.borderRadius * 2,
+  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+  transition: "transform 0.3s ease",
+  "&:hover": {
+    transform: "translateY(-4px)",
+    boxShadow: "0 6px 16px rgba(0, 0, 0, 0.15)",
+  },
+}));
+
+const StyledButton = styled(Button)(({ theme }) => ({
+  background: "linear-gradient(90deg, #1565c0, #64b5f6)",
+  color: "#fff",
+  textTransform: "none",
+  fontWeight: 600,
+  fontFamily: "'Roboto', sans-serif",
+  borderRadius: theme.shape.borderRadius * 2,
+  padding: theme.spacing(1.5, 3),
+  cursor: "pointer",
+  transition: "all 0.3s ease",
+  "&:hover": {
+    background: "linear-gradient(90deg, #104c91, #4a8fe7)",
+    transform: "scale(1.05)",
+    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.2)",
+  },
+}));
+
+const StyledOutlineButton = styled(Button)(({ theme }) => ({
+  borderColor: "#1565c0",
+  color: "#1565c0",
+  textTransform: "none",
+  fontWeight: 600,
+  fontFamily: "'Roboto', sans-serif",
+  borderRadius: theme.shape.borderRadius * 2,
+  padding: theme.spacing(1, 2),
+  cursor: "pointer",
+  transition: "all 0.3s ease",
+  "&:hover": {
+    borderColor: "#104c91",
+    color: "#104c91",
+    transform: "scale(1.05)",
+    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.2)",
+  },
+}));
+
+const StyledTextField = styled(TextField)(({ theme }) => ({
+  marginBottom: theme.spacing(2),
+  "& .MuiOutlinedInput-root": {
+    borderRadius: "12px",
+    backgroundColor: "#fff",
+    fontFamily: "'Roboto', sans-serif",
+    "&:hover .MuiOutlinedInput-notchedOutline": {
+      borderColor: "#1976d2",
+    },
+    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+      borderColor: "#1565c0",
+      borderWidth: "2px",
+    },
+  },
+  "& .MuiInputLabel-root": {
+    fontFamily: "'Roboto', sans-serif",
+    color: "#555",
+    "&.Mui-focused": {
+      color: "#1565c0",
+    },
+  },
+}));
+
+const StyledDialog = styled(Dialog)(({ theme }) => ({
+  "& .MuiDialog-paper": {
+    borderRadius: theme.shape.borderRadius * 2,
+    background: "linear-gradient(145deg, #ffffff, #f0f4f8)",
+    boxShadow: "0 6px 16px rgba(0, 0, 0, 0.15)",
+  },
+}));
+
+const StyledListItem = styled(ListItem)(({ theme }) => ({
+  transition: "all 0.3s ease",
+  "&:hover": {
+    backgroundColor: "rgba(25, 118, 210, 0.1)",
+    transform: "translateX(4px)",
+  },
+}));
 
 const EmployerDashboard = () => {
   const { user } = useAuth();
@@ -29,7 +123,6 @@ const EmployerDashboard = () => {
     salary: "",
     description: "",
   });
-
   const [applicants, setApplicants] = useState([]);
   const [applicantDialogOpen, setApplicantDialogOpen] = useState(false);
   const [selectedJobTitle, setSelectedJobTitle] = useState("");
@@ -98,44 +191,58 @@ const EmployerDashboard = () => {
   }, [user]);
 
   return (
-    <Box sx={{ p: 3 }}>
-      <Typography variant="h4" gutterBottom>
+    <StyledBox>
+      <Typography
+        variant="h4"
+        gutterBottom
+        sx={{ fontFamily: "'Roboto', sans-serif", fontWeight: "bold", color: "#1565c0" }}
+        className="text-center"
+      >
         Employer Dashboard
       </Typography>
 
-      <Button variant="contained" onClick={() => setOpen(true)}>
+      <StyledButton variant="contained" onClick={() => setOpen(true)}>
         Post New Job
-      </Button>
+      </StyledButton>
 
       <Box mt={3}>
         {jobs.map((job) => (
-          <Card key={job.id} sx={{ mb: 2 }}>
+          <StyledCard key={job.id}>
             <CardContent>
-              <Typography variant="h6">{job.title}</Typography>
-              <Typography>{job.description}</Typography>
-              <Typography>
+              <Typography
+                variant="h6"
+                sx={{ fontFamily: "'Roboto', sans-serif", color: "#1565c0" }}
+              >
+                {job.title}
+              </Typography>
+              <Typography sx={{ fontFamily: "'Roboto', sans-serif", color: "#555" }}>
+                {job.description}
+              </Typography>
+              <Typography sx={{ fontFamily: "'Roboto', sans-serif" }}>
                 <strong>Location:</strong> {job.location}
               </Typography>
-              <Typography>
+              <Typography sx={{ fontFamily: "'Roboto', sans-serif" }}>
                 <strong>Salary:</strong> ${job.salary}
               </Typography>
-              <Button
+              <StyledOutlineButton
                 onClick={() => viewApplicants(job.id, job.title)}
                 variant="outlined"
                 sx={{ mt: 1 }}
               >
                 View Applicants
-              </Button>
+              </StyledOutlineButton>
             </CardContent>
-          </Card>
+          </StyledCard>
         ))}
       </Box>
 
       {/* Dialog: Post Job */}
-      <Dialog open={open} onClose={() => setOpen(false)}>
-        <DialogTitle>Post a New Job</DialogTitle>
+      <StyledDialog open={open} onClose={() => setOpen(false)}>
+        <DialogTitle sx={{ fontFamily: "'Roboto', sans-serif", color: "#1565c0" }}>
+          Post a New Job
+        </DialogTitle>
         <DialogContent>
-          <TextField
+          <StyledTextField
             label="Title"
             name="title"
             fullWidth
@@ -143,7 +250,7 @@ const EmployerDashboard = () => {
             value={form.title}
             onChange={handleChange}
           />
-          <TextField
+          <StyledTextField
             label="Location"
             name="location"
             fullWidth
@@ -151,7 +258,7 @@ const EmployerDashboard = () => {
             value={form.location}
             onChange={handleChange}
           />
-          <TextField
+          <StyledTextField
             label="Salary"
             name="salary"
             type="number"
@@ -160,7 +267,7 @@ const EmployerDashboard = () => {
             value={form.salary}
             onChange={handleChange}
           />
-          <TextField
+          <StyledTextField
             label="Description"
             name="description"
             fullWidth
@@ -172,47 +279,65 @@ const EmployerDashboard = () => {
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleSubmit} variant="contained">
+          <StyledButton onClick={handleSubmit} variant="contained">
             Submit
-          </Button>
-          <Button onClick={() => setOpen(false)}>Cancel</Button>
+          </StyledButton>
+          <StyledOutlineButton onClick={() => setOpen(false)}>
+            Cancel
+          </StyledOutlineButton>
         </DialogActions>
-      </Dialog>
+      </StyledDialog>
 
       {/* Dialog: View Applicants */}
-      <Dialog
+      <StyledDialog
         open={applicantDialogOpen}
         onClose={() => setApplicantDialogOpen(false)}
         maxWidth="md"
         fullWidth
       >
-        <DialogTitle>Applicants for: {selectedJobTitle}</DialogTitle>
+        <DialogTitle sx={{ fontFamily: "'Roboto', sans-serif", color: "#1565c0" }}>
+          Applicants for: {selectedJobTitle}
+        </DialogTitle>
         <DialogContent dividers>
           {applicants.length === 0 ? (
-            <Typography>No applicants found.</Typography>
+            <Typography sx={{ fontFamily: "'Roboto', sans-serif" }}>
+              No applicants found.
+            </Typography>
           ) : (
             <List>
               {applicants.map((a) => (
                 <React.Fragment key={a.id}>
-                  <ListItem alignItems="flex-start">
+                  <StyledListItem alignItems="flex-start">
                     <Grid container spacing={1}>
                       <Grid item xs={12}>
-                        <Typography><strong>Name:</strong> {a.jobSeekerName}</Typography>
-                        <Typography><strong>Intro:</strong> {a.introduction}</Typography>
-                        <Typography><strong>Category:</strong> {a.jobCategory}</Typography>
-                        <Typography><strong>Skill:</strong> {a.skill}</Typography>
-                        <Typography><strong>Contact:</strong> {a.contactNumber}</Typography>
-                        <Button
-  onClick={() =>
-    window.open(`http://localhost:8081/api/applications/download-cv/${a.id}`, '_blank')
-  }
->
-  Download CV
-</Button>
-
+                        <Typography sx={{ fontFamily: "'Roboto', sans-serif" }}>
+                          <strong>Name:</strong> {a.jobSeekerName}
+                        </Typography>
+                        <Typography sx={{ fontFamily: "'Roboto', sans-serif" }}>
+                          <strong>Intro:</strong> {a.introduction}
+                        </Typography>
+                        <Typography sx={{ fontFamily: "'Roboto', sans-serif" }}>
+                          <strong>Category:</strong> {a.jobCategory}
+                        </Typography>
+                        <Typography sx={{ fontFamily: "'Roboto', sans-serif" }}>
+                          <strong>Skill:</strong> {a.skill}
+                        </Typography>
+                        <Typography sx={{ fontFamily: "'Roboto', sans-serif" }}>
+                          <strong>Contact:</strong> {a.contactNumber}
+                        </Typography>
+                        <StyledOutlineButton
+                          onClick={() =>
+                            window.open(
+                              `http://localhost:8081/api/applications/download-cv/${a.id}`,
+                              "_blank"
+                            )
+                          }
+                        >
+                          Download CV
+                        </StyledOutlineButton>
                       </Grid>
                     </Grid>
-                  </ListItem>
+                  </StyledListItem>
                   <Divider />
                 </React.Fragment>
               ))}
@@ -220,10 +345,12 @@ const EmployerDashboard = () => {
           )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setApplicantDialogOpen(false)}>Close</Button>
+          <StyledOutlineButton onClick={() => setApplicantDialogOpen(false)}>
+            Close
+          </StyledOutlineButton>
         </DialogActions>
-      </Dialog>
-    </Box>
+      </StyledDialog>
+    </StyledBox>
   );
 };
 
