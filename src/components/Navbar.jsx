@@ -1,189 +1,183 @@
-import React, { useState } from "react";
-import {
-  AppBar,
-  Toolbar,
-  Typography,
-  Button,
-  IconButton,
-  Avatar,
-  Tooltip,
-  Menu,
-  MenuItem,
+import React from "react";
+import { 
+  AppBar, 
+  Toolbar, 
+  Typography, 
+  Container, 
+  Box, 
+  Link, 
+  Button, 
+  IconButton, 
+  useMediaQuery,
   Drawer,
   List,
   ListItem,
   ListItemText,
-  Box,
-  useMediaQuery,
-  useTheme,
-  Divider,
+  ListItemIcon,
 } from "@mui/material";
+import { styled, useTheme } from "@mui/material/styles";
 import MenuIcon from "@mui/icons-material/Menu";
-import HomeIcon from "@mui/icons-material/Home";
-import DashboardIcon from "@mui/icons-material/Dashboard";
-import LogoutIcon from "@mui/icons-material/Logout";
+import WorkIcon from "@mui/icons-material/Work";
 import LoginIcon from "@mui/icons-material/Login";
-import HowToRegIcon from "@mui/icons-material/HowToReg";
-import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import PersonAddIcon from "@mui/icons-material/PersonAdd";
+import HomeIcon from "@mui/icons-material/Home";
+import InfoIcon from "@mui/icons-material/Info";
+import ContactMailIcon from "@mui/icons-material/ContactMail";
+import { Link as RouterLink } from "react-router-dom";
+
+const StyledAppBar = styled(AppBar)(({ theme }) => ({
+  background: "linear-gradient(90deg, #1565c0, #64b5f6)",
+  boxShadow: "0 4px 16px rgba(0, 0, 0, 0.12)",
+  padding: theme.spacing(1, 0),
+}));
+
+const StyledLink = styled(Link)(({ theme }) => ({
+  color: "#fff",
+  textDecoration: "none",
+  margin: theme.spacing(0, 2),
+  fontWeight: 500,
+  fontSize: "1.1rem",
+  display: "flex",
+  alignItems: "center",
+  transition: "color 0.3s ease, transform 0.3s ease",
+  "&:hover": {
+    color: theme.palette.grey[100],
+    transform: "translateY(-2px)",
+  },
+}));
+
+const StyledButton = styled(Button)(({ theme }) => ({
+  backgroundColor: "rgba(255, 255, 255, 0.25)",
+  color: "#fff",
+  textTransform: "none",
+  fontWeight: 600,
+  borderRadius: theme.shape.borderRadius * 2,
+  padding: theme.spacing(1, 2.5),
+  display: "flex",
+  alignItems: "center",
+  gap: theme.spacing(1),
+  transition: "background-color 0.3s ease, transform 0.3s ease",
+  "&:hover": {
+    backgroundColor: "rgba(255, 255, 255, 0.35)",
+    transform: "translateY(-2px)",
+    boxShadow: "0 2px 8px rgba(0, 0, 0, 0.2)",
+  },
+}));
 
 const Navbar = () => {
-  const { user, logout } = useAuth();
-  const navigate = useNavigate();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const [mobileOpen, setMobileOpen] = React.useState(false);
 
-  const [menuAnchor, setMenuAnchor] = useState(null);
-  const [drawerOpen, setDrawerOpen] = useState(false);
-
-  const openMenu = Boolean(menuAnchor);
-
-  const handleMenuClick = (event) => setMenuAnchor(event.currentTarget);
-  const handleMenuClose = () => setMenuAnchor(null);
-
-  const handleLogout = () => {
-    logout();
-    handleMenuClose();
-    navigate("/login");
+  const handleDrawerToggle = () => {
+    setMobileOpen(!mobileOpen);
   };
 
-  const toggleDrawer = (open) => () => setDrawerOpen(open);
-
-  const drawerContent = (
-    <Box sx={{ width: 250 }} role="presentation" onClick={toggleDrawer(false)}>
+  const drawer = (
+    <Box sx={{ width: 250, bgcolor: "#f0f4f8" }} onClick={handleDrawerToggle}>
       <List>
-        <ListItem>
-          <Typography variant="h6">Menu</Typography>
+        {[
+          { text: "Home", to: "/", icon: <HomeIcon /> },
+          { text: "About", to: "/about", icon: <InfoIcon /> },
+          { text: "Contact", to: "/contact", icon: <ContactMailIcon /> },
+        ].map((item) => (
+          <ListItem
+            key={item.text}
+            component={RouterLink}
+            to={item.to}
+            sx={{
+              color: "#1976d2",
+              "&:hover": { bgcolor: "rgba(25, 118, 210, 0.1)" },
+            }}
+          >
+            <ListItemIcon sx={{ color: "#1976d2" }}>{item.icon}</ListItemIcon>
+            <ListItemText primary={item.text} />
+          </ListItem>
+        ))}
+        <ListItem
+          component={RouterLink}
+          to="/login"
+          sx={{
+            color: "#1976d2",
+            "&:hover": { bgcolor: "rgba(25, 118, 210, 0.1)" },
+          }}
+        >
+          <ListItemIcon sx={{ color: "#1976d2" }}>
+            <LoginIcon />
+          </ListItemIcon>
+          <ListItemText primary="Login" />
         </ListItem>
-        <Divider />
-        <ListItem button component={Link} to="/">
-          <HomeIcon sx={{ mr: 1 }} />
-          <ListItemText primary="Home" />
+        <ListItem
+          component={RouterLink}
+          to="/register"
+          sx={{
+            color: "#1976d2",
+            "&:hover": { bgcolor: "rgba(25, 118, 210, 0.1)" },
+          }}
+        >
+          <ListItemIcon sx={{ color: "#1976d2" }}>
+            <PersonAddIcon />
+          </ListItemIcon>
+          <ListItemText primary="Register" />
         </ListItem>
-        {user ? (
-          <>
-            <ListItem button component={Link} to={`/${user.role.toLowerCase()}/dashboard`}>
-              <DashboardIcon sx={{ mr: 1 }} />
-              <ListItemText primary={`${user.role} Dashboard`} />
-            </ListItem>
-            <ListItem button onClick={handleLogout}>
-              <LogoutIcon sx={{ mr: 1 }} />
-              <ListItemText primary="Logout" />
-            </ListItem>
-          </>
-        ) : (
-          <>
-            <ListItem button component={Link} to="/login">
-              <LoginIcon sx={{ mr: 1 }} />
-              <ListItemText primary="Login" />
-            </ListItem>
-            <ListItem button component={Link} to="/register">
-              <HowToRegIcon sx={{ mr: 1 }} />
-              <ListItemText primary="Register" />
-            </ListItem>
-          </>
-        )}
       </List>
     </Box>
   );
 
   return (
     <>
-      <AppBar position="sticky" color="primary" elevation={4}>
-        <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
-          {/* Left Side */}
-          <Box sx={{ display: "flex", alignItems: "center" }}>
-            {isMobile && (
-              <IconButton edge="start" color="inherit" onClick={toggleDrawer(true)}>
-                <MenuIcon />
-              </IconButton>
-            )}
+      <StyledAppBar position="static">
+        <Container maxWidth="lg">
+          <Toolbar sx={{ justifyContent: "space-between" }}>
             <Typography
               variant="h6"
-              component={Link}
+              component={RouterLink}
               to="/"
               sx={{
-                color: "inherit",
+                color: "#fff",
                 textDecoration: "none",
-                ml: isMobile ? 1 : 0,
+                fontWeight: "bold",
+                fontSize: { xs: "1.2rem", sm: "1.5rem" },
                 display: "flex",
                 alignItems: "center",
+                gap: 1,
               }}
+              className="tracking-tight"
             >
-              <HomeIcon sx={{ mr: 1 }} />
+              <WorkIcon sx={{ fontSize: { xs: "1.5rem", sm: "1.8rem" } }} />
               Job Portal
             </Typography>
-          </Box>
-
-          {/* Right Side */}
-          {!isMobile && (
-            <Box>
-              {user ? (
-                <>
-                  <Tooltip title={`${user.role} Dashboard`}>
-                    <Button
-                      color="inherit"
-                      startIcon={<DashboardIcon />}
-                      component={Link}
-                      to={`/${user.role.toLowerCase()}/dashboard`}
-                      sx={{ textTransform: "capitalize", mr: 2 }}
-                    >
-                      {user.role}
-                    </Button>
-                  </Tooltip>
-                  <Tooltip title="Account">
-                    <IconButton onClick={handleMenuClick}>
-                      <Avatar sx={{ bgcolor: "#fff", color: "#1976d2" }}>
-                        {user.name ? user.name.charAt(0).toUpperCase() : "U"}
-                      </Avatar>
-                    </IconButton>
-                  </Tooltip>
-                  <Menu
-                    anchorEl={menuAnchor}
-                    open={openMenu}
-                    onClose={handleMenuClose}
-                    anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-                    transformOrigin={{ vertical: "top", horizontal: "right" }}
-                  >
-                    <MenuItem disabled>
-                      <Typography variant="body2">{user.email}</Typography>
-                    </MenuItem>
-                    <Divider />
-                    <MenuItem onClick={handleLogout}>
-                      <LogoutIcon fontSize="small" sx={{ mr: 1 }} />
-                      Logout
-                    </MenuItem>
-                  </Menu>
-                </>
-              ) : (
-                <>
-                  <Button
-                    color="inherit"
-                    startIcon={<LoginIcon />}
-                    component={Link}
-                    to="/login"
-                    sx={{ mr: 1 }}
-                  >
-                    Login
-                  </Button>
-                  <Button
-                    color="inherit"
-                    startIcon={<HowToRegIcon />}
-                    component={Link}
-                    to="/register"
-                  >
-                    Register
-                  </Button>
-                </>
-              )}
-            </Box>
-          )}
-        </Toolbar>
-      </AppBar>
-
-      {/* Mobile Drawer */}
-      <Drawer anchor="left" open={drawerOpen} onClose={toggleDrawer(false)}>
-        {drawerContent}
+            {isMobile ? (
+              <IconButton
+                color="inherit"
+                edge="end"
+                onClick={handleDrawerToggle}
+                sx={{ display: { md: "none" } }}
+              >
+                <MenuIcon />
+              </IconButton>
+            ) : (
+              <Box sx={{ display: "flex", alignItems: "center" }}>
+                <StyledButton component={RouterLink} to="/login">
+                  <LoginIcon sx={{ fontSize: "1.2rem" }} />
+                  Login
+                </StyledButton>
+                <StyledButton component={RouterLink} to="/register" sx={{ ml: 1 }}>
+                  <PersonAddIcon sx={{ fontSize: "1.2rem" }} />
+                  Register
+                </StyledButton>
+              </Box>
+            )}
+          </Toolbar>
+        </Container>
+      </StyledAppBar>
+      <Drawer
+        anchor="right"
+        open={mobileOpen}
+        onClose={handleDrawerToggle}
+        sx={{ display: { xs: "block", md: "none" } }}
+      >
+        {drawer}
       </Drawer>
     </>
   );
