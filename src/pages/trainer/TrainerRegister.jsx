@@ -1,0 +1,314 @@
+// import React, { useState } from "react";
+// import {
+//   Box,
+//   Button,
+//   TextField,
+//   Typography,
+//   Paper,
+//   Stack,
+// } from "@mui/material";
+// import { useNavigate } from "react-router-dom";
+// import { useAuth } from "../../context/AuthContext";
+// import axiosInstance from "../../api/axiosInstance";
+// import Swal from "sweetalert2";
+
+// const TrainerRegister = () => {
+//   const { user } = useAuth();
+//   const navigate = useNavigate();
+
+//   const [form, setForm] = useState({
+//     name: "",
+//     courseCategory: "",
+//     contactNumber: "",
+//     experience: "",
+//     qualification: "",
+//   });
+
+//   const handleChange = (e) =>
+//     setForm({ ...form, [e.target.name]: e.target.value });
+
+//   const handleSubmit = async (e) => {
+//     e.preventDefault();
+
+//     if (!user?.id) {
+//       Swal.fire("Error", "You must be logged in", "error");
+//       return;
+//     }
+
+//     try {
+//       await axiosInstance.post("/trainers", {
+//         userId: user.id,
+//         ...form,
+//       });
+
+//       Swal.fire("Success", "Trainer profile created", "success").then(() =>
+//         navigate("/trainer/dashboard")
+//       );
+//     } catch (err) {
+//       Swal.fire(
+//         "Error",
+//         err.response?.data || "Failed to create profile",
+//         "error"
+//       );
+//     }
+//   };
+
+//   return (
+//     <Box
+//       sx={{
+//         maxWidth: 600,
+//         mx: "auto",
+//         mt: 6,
+//         p: 3,
+//       }}
+//     >
+//       <Paper sx={{ p: 4 }}>
+//         <Typography variant="h5" mb={3}>
+//           Trainer Profile Registration
+//         </Typography>
+
+//         <form onSubmit={handleSubmit}>
+//           <Stack spacing={2}>
+//             <TextField
+//               label="Name"
+//               name="name"
+//               value={form.name}
+//               onChange={handleChange}
+//               required
+//               fullWidth
+//             />
+//             <TextField
+//               label="Course Category"
+//               name="courseCategory"
+//               value={form.courseCategory}
+//               onChange={handleChange}
+//               required
+//               fullWidth
+//             />
+//             <TextField
+//               label="Contact Number"
+//               name="contactNumber"
+//               value={form.contactNumber}
+//               onChange={handleChange}
+//               required
+//               fullWidth
+//             />
+//             <TextField
+//               label="Experience"
+//               name="experience"
+//               value={form.experience}
+//               onChange={handleChange}
+//               required
+//               fullWidth
+//             />
+//             <TextField
+//               label="Qualification"
+//               name="qualification"
+//               value={form.qualification}
+//               onChange={handleChange}
+//               required
+//               fullWidth
+//             />
+
+//             <Button variant="contained" type="submit" fullWidth>
+//               Submit Profile
+//             </Button>
+//           </Stack>
+//         </form>
+//       </Paper>
+//     </Box>
+//   );
+// };
+
+// export default TrainerRegister;
+
+import React, { useState } from "react";
+import {
+  Container,
+  Typography,
+  TextField,
+  Button,
+  Box,
+  Paper,
+} from "@mui/material";
+import { styled } from "@mui/material/styles";
+import Swal from "sweetalert2";
+import { useNavigate } from "react-router-dom";
+import axiosInstance from "../../api/axiosInstance";
+import { useAuth } from "../../context/AuthContext";
+
+const StyledContainer = styled(Container)(({ theme }) => ({
+  padding: theme.spacing(4),
+  backgroundColor: "#f0f4f8",
+  minHeight: "100vh",
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  fontFamily: "'Roboto', sans-serif",
+}));
+
+const StyledPaper = styled(Paper)(({ theme }) => ({
+  padding: theme.spacing(4),
+  marginTop: theme.spacing(5),
+  background: "linear-gradient(145deg, #ffffff, #f0f4f8)",
+  borderRadius: theme.shape.borderRadius * 2,
+  boxShadow: "0 6px 16px rgba(0, 0, 0, 0.15)",
+  transition: "all 0.3s ease",
+  width: "100%",
+  maxWidth: "500px",
+  "&:hover": {
+    transform: "translateY(-4px)",
+    boxShadow: "0 8px 20px rgba(0, 0, 0, 0.2)",
+  },
+}));
+
+const StyledTextField = styled(TextField)(({ theme }) => ({
+  marginBottom: theme.spacing(2),
+  "& .MuiOutlinedInput-root": {
+    borderRadius: "12px",
+    backgroundColor: "#fff",
+    fontFamily: "'Roboto', sans-serif",
+    "&:hover .MuiOutlinedInput-notchedOutline": {
+      borderColor: "#1976d2",
+    },
+    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+      borderColor: "#1565c0",
+      borderWidth: "2px",
+    },
+  },
+  "& .MuiInputLabel-root": {
+    fontFamily: "'Roboto', sans-serif",
+    color: "#555",
+    "&.Mui-focused": {
+      color: "#1565c0",
+    },
+  },
+}));
+
+const StyledButton = styled(Button)(({ theme }) => ({
+  background: "linear-gradient(90deg, #1565c0, #64b5f6)",
+  color: "#fff",
+  textTransform: "none",
+  fontWeight: 600,
+  fontFamily: "'Roboto', sans-serif",
+  borderRadius: theme.shape.borderRadius * 2,
+  padding: theme.spacing(1.5, 3),
+  cursor: "pointer",
+  transition: "all 0.3s ease",
+  "&:hover": {
+    background: "linear-gradient(90deg, #104c91, #4a8fe7)",
+    transform: "scale(1.05)",
+    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.2)",
+  },
+}));
+
+const TrainerRegister = () => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
+  const [form, setForm] = useState({
+    name: "",
+    courseCategory: "",
+    contactNumber: "",
+    experience: "",
+    qualification: "",
+  });
+
+  const handleChange = (e) =>
+    setForm({ ...form, [e.target.name]: e.target.value });
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      const res = await axiosInstance.post("/trainers", {
+        ...form,
+        userId: user.id,
+      });
+
+      localStorage.setItem("trainerId", res.data.id);
+      Swal.fire("Success", "Trainer profile created!", "success").then(() => {
+        navigate("/trainer/dashboard");
+      });
+    } catch (err) {
+      Swal.fire(
+        "Error",
+        err.response?.data || "Failed to create trainer profile",
+        "error"
+      );
+    }
+  };
+
+  return (
+    <StyledContainer maxWidth="sm">
+      <StyledPaper elevation={3}>
+        <Typography
+          variant="h5"
+          gutterBottom
+          sx={{ fontFamily: "'Roboto', sans-serif", fontWeight: "bold", color: "#1565c0" }}
+          className="text-center"
+        >
+          Trainer Profile Registration
+        </Typography>
+        <form onSubmit={handleSubmit}>
+          <StyledTextField
+            label="Name"
+            name="name"
+            fullWidth
+            margin="normal"
+            required
+            value={form.name}
+            onChange={handleChange}
+          />
+          <StyledTextField
+            label="Course Category"
+            name="courseCategory"
+            fullWidth
+            margin="normal"
+            required
+            value={form.courseCategory}
+            onChange={handleChange}
+          />
+          <StyledTextField
+            label="Contact Number"
+            name="contactNumber"
+            fullWidth
+            margin="normal"
+            required
+            value={form.contactNumber}
+            onChange={handleChange}
+          />
+          <StyledTextField
+            label="Experience"
+            name="experience"
+            fullWidth
+            margin="normal"
+            required
+            value={form.experience}
+            onChange={handleChange}
+          />
+          <StyledTextField
+            label="Qualification"
+            name="qualification"
+            fullWidth
+            margin="normal"
+            required
+            value={form.qualification}
+            onChange={handleChange}
+          />
+          <Box mt={2}>
+            <StyledButton
+              type="submit"
+              variant="contained"
+              fullWidth
+            >
+              Submit Profile
+            </StyledButton>
+          </Box>
+        </form>
+      </StyledPaper>
+    </StyledContainer>
+  );
+};
+
+export default TrainerRegister;
