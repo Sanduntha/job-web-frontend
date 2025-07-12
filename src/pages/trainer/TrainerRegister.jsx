@@ -122,20 +122,85 @@
 
 // export default TrainerRegister;
 
-
 import React, { useState } from "react";
 import {
-  Box,
-  Button,
-  Card,
-  CardContent,
-  TextField,
+  Container,
   Typography,
+  TextField,
+  Button,
+  Box,
+  Paper,
 } from "@mui/material";
+import { styled } from "@mui/material/styles";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 import axiosInstance from "../../api/axiosInstance";
 import { useAuth } from "../../context/AuthContext";
+
+const StyledContainer = styled(Container)(({ theme }) => ({
+  padding: theme.spacing(4),
+  backgroundColor: "#f0f4f8",
+  minHeight: "100vh",
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  fontFamily: "'Roboto', sans-serif",
+}));
+
+const StyledPaper = styled(Paper)(({ theme }) => ({
+  padding: theme.spacing(4),
+  marginTop: theme.spacing(5),
+  background: "linear-gradient(145deg, #ffffff, #f0f4f8)",
+  borderRadius: theme.shape.borderRadius * 2,
+  boxShadow: "0 6px 16px rgba(0, 0, 0, 0.15)",
+  transition: "all 0.3s ease",
+  width: "100%",
+  maxWidth: "500px",
+  "&:hover": {
+    transform: "translateY(-4px)",
+    boxShadow: "0 8px 20px rgba(0, 0, 0, 0.2)",
+  },
+}));
+
+const StyledTextField = styled(TextField)(({ theme }) => ({
+  marginBottom: theme.spacing(2),
+  "& .MuiOutlinedInput-root": {
+    borderRadius: "12px",
+    backgroundColor: "#fff",
+    fontFamily: "'Roboto', sans-serif",
+    "&:hover .MuiOutlinedInput-notchedOutline": {
+      borderColor: "#1976d2",
+    },
+    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+      borderColor: "#1565c0",
+      borderWidth: "2px",
+    },
+  },
+  "& .MuiInputLabel-root": {
+    fontFamily: "'Roboto', sans-serif",
+    color: "#555",
+    "&.Mui-focused": {
+      color: "#1565c0",
+    },
+  },
+}));
+
+const StyledButton = styled(Button)(({ theme }) => ({
+  background: "linear-gradient(90deg, #1565c0, #64b5f6)",
+  color: "#fff",
+  textTransform: "none",
+  fontWeight: 600,
+  fontFamily: "'Roboto', sans-serif",
+  borderRadius: theme.shape.borderRadius * 2,
+  padding: theme.spacing(1.5, 3),
+  cursor: "pointer",
+  transition: "all 0.3s ease",
+  "&:hover": {
+    background: "linear-gradient(90deg, #104c91, #4a8fe7)",
+    transform: "scale(1.05)",
+    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.2)",
+  },
+}));
 
 const TrainerRegister = () => {
   const { user } = useAuth();
@@ -161,7 +226,7 @@ const TrainerRegister = () => {
         userId: user.id,
       });
 
-      localStorage.setItem("trainerId", res.data.id); // ✅ Save trainerId
+      localStorage.setItem("trainerId", res.data.id);
       Swal.fire("Success", "Trainer profile created!", "success").then(() => {
         navigate("/trainer/dashboard");
       });
@@ -175,70 +240,74 @@ const TrainerRegister = () => {
   };
 
   return (
-    <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
-      <Card sx={{ width: 500, p: 3 }}>
-        <CardContent>
-          <Typography variant="h5" gutterBottom>
-            Trainer Profile Registration
-          </Typography>
-          <form onSubmit={handleSubmit}>
-            <TextField
-              label="Name"
-              name="name"
-              fullWidth
-              margin="normal"
-              required
-              value={form.name}
-              onChange={handleChange}
-            />
-            <TextField
-              label="Course Category"
-              name="courseCategory"
-              fullWidth
-              margin="normal"
-              required
-              value={form.courseCategory}
-              onChange={handleChange}
-            />
-            <TextField
-              label="Contact Number"
-              name="contactNumber"
-              fullWidth
-              margin="normal"
-              required
-              value={form.contactNumber}
-              onChange={handleChange}
-            />
-            <TextField
-              label="Experience"
-              name="experience"
-              fullWidth
-              margin="normal"
-              required
-              value={form.experience}
-              onChange={handleChange}
-            />
-            <TextField
-              label="Qualification"
-              name="qualification"
-              fullWidth
-              margin="normal"
-              required
-              value={form.qualification}
-              onChange={handleChange}
-            />
-            <Button
+    <StyledContainer maxWidth="sm">
+      <StyledPaper elevation={3}>
+        <Typography
+          variant="h5"
+          gutterBottom
+          sx={{ fontFamily: "'Roboto', sans-serif", fontWeight: "bold", color: "#1565c0" }}
+          className="text-center"
+        >
+          Trainer Profile Registration
+        </Typography>
+        <form onSubmit={handleSubmit}>
+          <StyledTextField
+            label="Name"
+            name="name"
+            fullWidth
+            margin="normal"
+            required
+            value={form.name}
+            onChange={handleChange}
+          />
+          <StyledTextField
+            label="Course Category"
+            name="courseCategory"
+            fullWidth
+            margin="normal"
+            required
+            value={form.courseCategory}
+            onChange={handleChange}
+          />
+          <StyledTextField
+            label="Contact Number"
+            name="contactNumber"
+            fullWidth
+            margin="normal"
+            required
+            value={form.contactNumber}
+            onChange={handleChange}
+          />
+          <StyledTextField
+            label="Experience"
+            name="experience"
+            fullWidth
+            margin="normal"
+            required
+            value={form.experience}
+            onChange={handleChange}
+          />
+          <StyledTextField
+            label="Qualification"
+            name="qualification"
+            fullWidth
+            margin="normal"
+            required
+            value={form.qualification}
+            onChange={handleChange}
+          />
+          <Box mt={2}>
+            <StyledButton
               type="submit"
               variant="contained"
               fullWidth
-              sx={{ mt: 2 }}
             >
               Submit Profile
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
-    </Box>
+            </StyledButton>
+          </Box>
+        </form>
+      </StyledPaper>
+    </StyledContainer>
   );
 };
 
