@@ -1,4 +1,3 @@
-// src/pages/jobseeker/JobSeekerRegister.jsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
@@ -12,6 +11,70 @@ import {
   Box,
   Paper,
 } from "@mui/material";
+import { styled } from "@mui/material/styles";
+
+const StyledContainer = styled(Container)(({ theme }) => ({
+  padding: theme.spacing(4),
+  backgroundColor: "#f0f4f8",
+  minHeight: "100vh",
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  fontFamily: "'Roboto', sans-serif",
+}));
+
+const StyledPaper = styled(Paper)(({ theme }) => ({
+  padding: theme.spacing(4),
+  marginTop: theme.spacing(5),
+  background: "linear-gradient(145deg, #ffffff, #f0f4f8)",
+  borderRadius: theme.shape.borderRadius * 2,
+  boxShadow: "0 6px 16px rgba(0, 0, 0, 0.15)",
+  transition: "all 0.3s ease",
+  "&:hover": {
+    transform: "translateY(-4px)",
+    boxShadow: "0 8px 20px rgba(0, 0, 0, 0.2)",
+  },
+}));
+
+const StyledTextField = styled(TextField)(({ theme }) => ({
+  marginBottom: theme.spacing(2),
+  "& .MuiOutlinedInput-root": {
+    borderRadius: "12px",
+    backgroundColor: "#fff",
+    fontFamily: "'Roboto', sans-serif",
+    "&:hover .MuiOutlinedInput-notchedOutline": {
+      borderColor: "#1976d2",
+    },
+    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+      borderColor: "#1565c0",
+      borderWidth: "2px",
+    },
+  },
+  "& .MuiInputLabel-root": {
+    fontFamily: "'Roboto', sans-serif",
+    color: "#555",
+    "&.Mui-focused": {
+      color: "#1565c0",
+    },
+  },
+}));
+
+const StyledButton = styled(Button)(({ theme }) => ({
+  background: "linear-gradient(90deg, #1565c0, #64b5f6)",
+  color: "#fff",
+  textTransform: "none",
+  fontWeight: 600,
+  fontFamily: "'Roboto', sans-serif",
+  borderRadius: theme.shape.borderRadius * 2,
+  padding: theme.spacing(1.5, 3),
+  cursor: "pointer",
+  transition: "all 0.3s ease",
+  "&:hover": {
+    background: "linear-gradient(90deg, #104c91, #4a8fe7)",
+    transform: "scale(1.05)",
+    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.2)",
+  },
+}));
 
 const JobSeekerRegister = () => {
   const { user } = useAuth();
@@ -28,39 +91,42 @@ const JobSeekerRegister = () => {
     setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  if (!user || !user.id) {
-    Swal.fire("Error", "You must login first", "error");
-    return;
-  }
+    e.preventDefault();
+    if (!user || !user.id) {
+      Swal.fire("Error", "You must login first", "error");
+      return;
+    }
 
-  try {
-    const res = await axios.post("http://localhost:8081/api/jobseekers", {
-      ...form,
-      userId: user.id,
-    });
+    try {
+      const res = await axios.post("http://localhost:8081/api/jobseekers", {
+        ...form,
+        userId: user.id,
+      });
 
-    // ✅ Save ID and go to dashboard
-    const jobSeeker = res.data;
-    localStorage.setItem("jobSeekerId", jobSeeker.id);
+      const jobSeeker = res.data;
+      localStorage.setItem("jobSeekerId", jobSeeker.id);
 
-    Swal.fire("Success", "Profile created successfully!", "success").then(() =>
-      navigate("/jobseeker/dashboard")
-    );
-  } catch (err) {
-    Swal.fire("Error", err?.response?.data || "Profile creation failed", "error");
-  }
-};
-
+      Swal.fire("Success", "Profile created successfully!", "success").then(() =>
+        navigate("/jobseeker/dashboard")
+      );
+    } catch (err) {
+      Swal.fire("Error", err?.response?.data || "Profile creation failed", "error");
+    }
+  };
 
   return (
-    <Container maxWidth="sm">
-      <Paper elevation={3} sx={{ p: 4, mt: 5 }}>
-        <Typography variant="h5" gutterBottom>
+    <StyledContainer maxWidth="sm">
+      <StyledPaper elevation={3}>
+        <Typography
+          variant="h5"
+          gutterBottom
+          sx={{ fontFamily: "'Roboto', sans-serif", fontWeight: "bold", color: "#1565c0" }}
+          className="text-center"
+        >
           Job Seeker Profile Registration
         </Typography>
         <form onSubmit={handleSubmit}>
-          <TextField
+          <StyledTextField
             fullWidth
             label="Name"
             name="name"
@@ -69,7 +135,7 @@ const JobSeekerRegister = () => {
             margin="normal"
             required
           />
-          <TextField
+          <StyledTextField
             fullWidth
             label="Job Category"
             name="jobCategory"
@@ -78,7 +144,7 @@ const JobSeekerRegister = () => {
             margin="normal"
             required
           />
-          <TextField
+          <StyledTextField
             fullWidth
             label="Skill"
             name="skill"
@@ -87,7 +153,7 @@ const JobSeekerRegister = () => {
             margin="normal"
             required
           />
-          <TextField
+          <StyledTextField
             fullWidth
             label="Contact Number"
             name="contactNumber"
@@ -97,13 +163,13 @@ const JobSeekerRegister = () => {
             required
           />
           <Box mt={2}>
-            <Button variant="contained" color="primary" type="submit" fullWidth>
+            <StyledButton variant="contained" type="submit" fullWidth>
               Submit Profile
-            </Button>
+            </StyledButton>
           </Box>
         </form>
-      </Paper>
-    </Container>
+      </StyledPaper>
+    </StyledContainer>
   );
 };
 
