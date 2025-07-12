@@ -139,12 +139,12 @@ const AdminDashboard = () => {
     }, []);
 
     const fetchAllData = () => {
-        axios.get("http://localhost:8081/api/employers").then((res) => setEmployers(res.data));
-        axios.get("http://localhost:8081/api/trainers").then((res) => setTrainers(res.data));
-        axios.get("http://localhost:8081/api/jobseekers").then((res) => setJobSeekers(res.data));
-        axios.get("http://localhost:8081/api/courses").then((res) => setCourses(res.data));
-        axios.get("http://localhost:8081/api/enrollments").then((res) => setEnrollments(res.data));
-        axios.get("http://localhost:8081/api/jobs").then((res) => setJobs(res.data));
+        axios.get("http://localhost:8080/api/employers").then((res) => setEmployers(res.data));
+        axios.get("http://localhost:8080/api/trainers").then((res) => setTrainers(res.data));
+        axios.get("http://localhost:8080/api/jobseekers").then((res) => setJobSeekers(res.data));
+        axios.get("http://localhost:8080/api/courses").then((res) => setCourses(res.data));
+        axios.get("http://localhost:8080/api/enrollments").then((res) => setEnrollments(res.data));
+        axios.get("http://localhost:8080/api/jobs").then((res) => setJobs(res.data));
     };
 
     const handleTabChange = (newVal) => {
@@ -161,7 +161,7 @@ const AdminDashboard = () => {
         }).then((result) => {
             if (result.isConfirmed) {
                 axios
-                    .delete(`http://localhost:8081/api/${type}/${id}`)
+                    .delete(`http://localhost:8080/api/${type}/${id}`)
                     .then(() => {
                         Swal.fire("Deleted!", `${type} has been deleted.`, "success");
                         switch (type) {

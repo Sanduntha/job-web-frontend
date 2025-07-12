@@ -103,14 +103,14 @@ const JobSeekerDashboard = () => {
   const [jobSeekerProfileId, setJobSeekerProfileId] = useState(null);
 
   useEffect(() => {
-    axios.get("http://localhost:8081/api/jobs").then((res) => setJobs(res.data));
-    axios.get("http://localhost:8081/api/courses").then((res) => setCourses(res.data));
+    axios.get("http://localhost:8080/api/jobs").then((res) => setJobs(res.data));
+    axios.get("http://localhost:8080/api/courses").then((res) => setCourses(res.data));
   }, []);
 
   useEffect(() => {
     if (user?.id) {
       axios
-        .get(`http://localhost:8081/api/jobseekers/user/${user.id}`)
+        .get(`http://localhost:8080/api/jobseekers/user/${user.id}`)
         .then((res) => setJobSeekerProfileId(res.data.id))
         .catch(() => Swal.fire("Error", "Please complete your profile first.", "error"));
     }
@@ -145,7 +145,7 @@ const JobSeekerDashboard = () => {
     formData.append("cvFile", cvFile);
 
     try {
-      await axios.post("http://localhost:8081/api/applications/apply", formData, {
+      await axios.post("http://localhost:8080/api/applications/apply", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
       Swal.fire("Success", "Application submitted!", "success");
@@ -175,7 +175,7 @@ const JobSeekerDashboard = () => {
 
     if (result.isConfirmed) {
       try {
-        await axios.post("http://localhost:8081/api/enrollments", {
+        await axios.post("http://localhost:8080/api/enrollments", {
           jobSeekerId: jobSeekerProfileId,
           courseId: course.id,
           amount: Number(course.fee),

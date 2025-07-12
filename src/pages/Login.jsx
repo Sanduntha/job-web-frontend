@@ -67,7 +67,7 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post("http://localhost:8081/api/users/login", { email, password });
+      const res = await axios.post("http://localhost:8080/api/users/login", { email, password });
       
       const userData = res.data; // expects full user object including id and token
       login(userData);
@@ -76,7 +76,7 @@ const Login = () => {
       if (userData.role === "admin") navigate("/admin/dashboard");
       else if (userData.role === "jobseeker") {
         try {
-          const res = await axios.get(`http://localhost:8081/api/jobseekers/user/${userData.id}`);
+          const res = await axios.get(`http://localhost:8080/api/jobseekers/user/${userData.id}`);
           const jobSeeker = res.data;
 
           // ✅ Save jobSeekerId to localStorage if found

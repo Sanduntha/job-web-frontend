@@ -98,7 +98,7 @@ const JobSeekerRegister = () => {
     }
 
     try {
-      const res = await axios.post("http://localhost:8081/api/jobseekers", {
+      const res = await axios.post("http://localhost:8080/api/jobseekers", {
         ...form,
         userId: user.id,
       });

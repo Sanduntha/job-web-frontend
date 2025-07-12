@@ -328,7 +328,7 @@ const EmployerDashboard = () => {
                         <StyledOutlineButton
                           onClick={() =>
                             window.open(
-                              `http://localhost:8081/api/applications/download-cv/${a.id}`,
+                              `http://localhost:8080/api/applications/download-cv/${a.id}`,
                               "_blank"
                             )
                           }

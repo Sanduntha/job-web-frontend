@@ -173,7 +173,7 @@
     useEffect(() => {
         const loadTrainerProfile = async () => {
         try {
-            const res = await axios.get(`http://localhost:8081/api/trainers/user/${user.id}`);
+            const res = await axios.get(`http://localhost:8080/api/trainers/user/${user.id}`);
             localStorage.setItem("trainerId", res.data.id);
             setTrainerId(res.data.id);
         } catch (err) {
@@ -183,7 +183,7 @@
 
         const fetchCoursesWithEarnings = async (trainerId) => {
         try {
-            const res = await axios.get(`http://localhost:8081/api/courses/trainer/${trainerId}/earnings`);
+            const res = await axios.get(`http://localhost:8080/api/courses/trainer/${trainerId}/earnings`);
             setCourses(res.data);
         } catch (err) {
             Swal.fire("Error", "Failed to load courses or earnings", "error");
@@ -208,7 +208,7 @@
         }
 
         try {
-        await axios.post("http://localhost:8081/api/courses", {
+        await axios.post("http://localhost:8080/api/courses", {
             trainerId,
             title: form.title,
             duration: form.duration,
@@ -220,7 +220,7 @@
         setForm({ title: "", duration: "", description: "", fee: "" });
         setOpenDialog(false);
 
-        const res = await axios.get(`http://localhost:8081/api/courses/trainer/${trainerId}/earnings`);
+        const res = await axios.get(`http://localhost:8080/api/courses/trainer/${trainerId}/earnings`);
         setCourses(res.data);
         } catch (err) {
         Swal.fire("Error", err.response?.data || "Failed to add course", "error");

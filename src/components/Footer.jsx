@@ -35,7 +35,7 @@ const Footer = () => (
             gutterBottom
           >
             Job Portal
-          </Typography>
+          {/* </Typography>
           <Box sx={{ mb: 2 }}>
             <StyledLink href="https://twitter.com" target="_blank" rel="noopener">
               Twitter
@@ -51,7 +51,7 @@ const Footer = () => (
             variant="body2" 
             color="text.secondary"
             className="text-gray-600"
-          >
+          > */}
             © {new Date().getFullYear()} Job Portal. All rights reserved.
           </Typography>
         </Box>

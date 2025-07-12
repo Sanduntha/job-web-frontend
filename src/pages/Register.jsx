@@ -76,7 +76,7 @@ const Register = () => {
     e.preventDefault();
 
     try {
-      await axios.post("http://localhost:8081/api/users/register", form);
+      await axios.post("http://localhost:8080/api/users/register", form);
       await Swal.fire({
         icon: "success",
         title: "Registration Successful!",

@@ -82,7 +82,7 @@ const JobApplicants = () => {
                     <strong>Intro:</strong> {app.introduction}
                   </Typography>
                   <StyledButton
-                    href={`http://localhost:8081/api/cv/download/${app.cvFile}`}
+                    href={`http://localhost:8080/api/cv/download/${app.cvFile}`}
                     target="_blank"
                     rel="noreferrer"
                     sx={{ mt: 2 }}
