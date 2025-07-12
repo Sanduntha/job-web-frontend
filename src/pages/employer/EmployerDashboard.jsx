@@ -121,25 +121,42 @@ const EmployerDashboard = () => {
     title: "",
     location: "",
     salary: "",
+    companyName: "",
     description: "",
   });
   const [applicants, setApplicants] = useState([]);
   const [applicantDialogOpen, setApplicantDialogOpen] = useState(false);
   const [selectedJobTitle, setSelectedJobTitle] = useState("");
+  const [applicationCounts, setApplicationCounts] = useState({});
+
 
   const fetchJobs = async () => {
-    try {
-      const employerId = localStorage.getItem("employerId");
-      if (!employerId) {
-        console.warn("No employer ID in localStorage");
-        return;
-      }
-      const res = await axiosInstance.get(`/jobs/employer/${employerId}`);
-      setJobs(res.data);
-    } catch (err) {
-      console.error("Failed to load jobs", err);
+  try {
+    const employerId = localStorage.getItem("employerId");
+    if (!employerId) {
+      console.warn("No employer ID in localStorage");
+      return;
     }
-  };
+    const res = await axiosInstance.get(`/jobs/employer/${employerId}`);
+    setJobs(res.data);
+
+    // Fetch application counts for each job
+    const counts = {};
+    await Promise.all(
+      res.data.map(async (job) => {
+        try {
+          const countRes = await axiosInstance.get(`/applications/count/job/${job.id}`);
+          counts[job.id] = countRes.data.count;
+        } catch {
+          counts[job.id] = 0;
+        }
+      })
+    );
+    setApplicationCounts(counts);
+  } catch (err) {
+    console.error("Failed to load jobs", err);
+  }
+};
 
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -158,7 +175,13 @@ const EmployerDashboard = () => {
       });
 
       Swal.fire("Success", "Job posted successfully", "success");
-      setForm({ title: "", location: "", salary: "", description: "" });
+      setForm({
+        title: "",
+        location: "",
+        salary: "",
+        companyName: "",
+        description: "",
+      });
       setOpen(false);
       fetchJobs();
     } catch (err) {
@@ -196,7 +219,6 @@ const EmployerDashboard = () => {
         variant="h4"
         gutterBottom
         sx={{ fontFamily: "'Roboto', sans-serif", fontWeight: "bold", color: "#1565c0" }}
-        className="text-center"
       >
         Employer Dashboard
       </Typography>
@@ -205,40 +227,34 @@ const EmployerDashboard = () => {
         Post New Job
       </StyledButton>
 
-      <Box mt={3}>
-        {jobs.map((job) => (
-          <StyledCard key={job.id}>
-            <CardContent>
-              <Typography
-                variant="h6"
-                sx={{ fontFamily: "'Roboto', sans-serif", color: "#1565c0" }}
-              >
-                {job.title}
-              </Typography>
-              <Typography sx={{ fontFamily: "'Roboto', sans-serif", color: "#555" }}>
-                {job.description}
-              </Typography>
-              <Typography sx={{ fontFamily: "'Roboto', sans-serif" }}>
-                <strong>Location:</strong> {job.location}
-              </Typography>
-              <Typography sx={{ fontFamily: "'Roboto', sans-serif" }}>
-                <strong>Salary:</strong> ${job.salary}
-              </Typography>
-              <StyledOutlineButton
-                onClick={() => viewApplicants(job.id, job.title)}
-                variant="outlined"
-                sx={{ mt: 1 }}
-              >
-                View Applicants
-              </StyledOutlineButton>
-            </CardContent>
-          </StyledCard>
-        ))}
-      </Box>
+    <Box mt={3}>
+  {jobs.map((job) => (
+    <StyledCard key={job.id}>
+      <CardContent>
+        <Typography variant="h6" sx={{ color: "#1565c0" }}>
+          {job.title}
+        </Typography>
+        <Typography sx={{ color: "#555" }}>{job.description}</Typography>
+        <Typography><strong>Location:</strong> {job.location}</Typography>
+        <Typography><strong>Salary:</strong> ${job.salary || "Not specified"}</Typography>
+        <Typography><strong>Company:</strong> {job.companyName}</Typography>
+        <Typography><strong>Applicants:</strong> {applicationCounts[job.id] || 0}</Typography>
+        <StyledOutlineButton
+          onClick={() => viewApplicants(job.id, job.title)}
+          variant="outlined"
+          sx={{ mt: 1 }}
+        >
+          View Applicants
+        </StyledOutlineButton>
+      </CardContent>
+    </StyledCard>
+  ))}
+</Box>
+
 
       {/* Dialog: Post Job */}
       <StyledDialog open={open} onClose={() => setOpen(false)}>
-        <DialogTitle sx={{ fontFamily: "'Roboto', sans-serif", color: "#1565c0" }}>
+        <DialogTitle sx={{ color: "#1565c0" }}>
           Post a New Job
         </DialogTitle>
         <DialogContent>
@@ -246,7 +262,6 @@ const EmployerDashboard = () => {
             label="Title"
             name="title"
             fullWidth
-            margin="normal"
             value={form.title}
             onChange={handleChange}
           />
@@ -254,7 +269,6 @@ const EmployerDashboard = () => {
             label="Location"
             name="location"
             fullWidth
-            margin="normal"
             value={form.location}
             onChange={handleChange}
           />
@@ -263,7 +277,6 @@ const EmployerDashboard = () => {
             name="salary"
             type="number"
             fullWidth
-            margin="normal"
             value={form.salary}
             onChange={handleChange}
           />
@@ -273,8 +286,14 @@ const EmployerDashboard = () => {
             fullWidth
             multiline
             rows={3}
-            margin="normal"
             value={form.description}
+            onChange={handleChange}
+          />
+          <StyledTextField
+            label="Company Name"
+            name="companyName"
+            fullWidth
+            value={form.companyName}
             onChange={handleChange}
           />
         </DialogContent>
@@ -295,14 +314,12 @@ const EmployerDashboard = () => {
         maxWidth="md"
         fullWidth
       >
-        <DialogTitle sx={{ fontFamily: "'Roboto', sans-serif", color: "#1565c0" }}>
+        <DialogTitle sx={{ color: "#1565c0" }}>
           Applicants for: {selectedJobTitle}
         </DialogTitle>
         <DialogContent dividers>
           {applicants.length === 0 ? (
-            <Typography sx={{ fontFamily: "'Roboto', sans-serif" }}>
-              No applicants found.
-            </Typography>
+            <Typography>No applicants found.</Typography>
           ) : (
             <List>
               {applicants.map((a) => (
@@ -310,21 +327,11 @@ const EmployerDashboard = () => {
                   <StyledListItem alignItems="flex-start">
                     <Grid container spacing={1}>
                       <Grid item xs={12}>
-                        <Typography sx={{ fontFamily: "'Roboto', sans-serif" }}>
-                          <strong>Name:</strong> {a.jobSeekerName}
-                        </Typography>
-                        <Typography sx={{ fontFamily: "'Roboto', sans-serif" }}>
-                          <strong>Intro:</strong> {a.introduction}
-                        </Typography>
-                        <Typography sx={{ fontFamily: "'Roboto', sans-serif" }}>
-                          <strong>Category:</strong> {a.jobCategory}
-                        </Typography>
-                        <Typography sx={{ fontFamily: "'Roboto', sans-serif" }}>
-                          <strong>Skill:</strong> {a.skill}
-                        </Typography>
-                        <Typography sx={{ fontFamily: "'Roboto', sans-serif" }}>
-                          <strong>Contact:</strong> {a.contactNumber}
-                        </Typography>
+                        <Typography><strong>Name:</strong> {a.jobSeekerName}</Typography>
+                        <Typography><strong>Intro:</strong> {a.introduction}</Typography>
+                        <Typography><strong>Category:</strong> {a.jobCategory}</Typography>
+                        <Typography><strong>Skill:</strong> {a.skill}</Typography>
+                        <Typography><strong>Contact:</strong> {a.contactNumber}</Typography>
                         <StyledOutlineButton
                           onClick={() =>
                             window.open(
