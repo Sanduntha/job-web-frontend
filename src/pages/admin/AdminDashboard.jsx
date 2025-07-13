@@ -209,6 +209,10 @@ const AdminDashboard = () => {
 
     const submitData = () => {
       const payload = { ...data };
+      // Remove id from payload for POST requests (add operations)
+      if (!isEdit && type !== "enrollment") {
+        delete payload.id;
+      }
       if (type === "enrollment") {
         payload.jobSeekerId = parseInt(data.jobSeekerId);
         payload.courseId = parseInt(data.courseId);
@@ -468,11 +472,11 @@ const AdminDashboard = () => {
       )}
 
       <StyledContent>
-        {isMobile && (
+        {/* {isMobile && (
           <StyledIconButton onClick={() => setDrawerOpen(true)} sx={{ mb: 2, color: "#1976d2" }}>
             <MenuIcon />
           </StyledIconButton>
-        )}
+        )} */}
         <Typography variant="h4" className="font-extrabold text-gray-800" gutterBottom sx={{ fontFamily: "'Roboto', sans-serif" }}>
           Admin Dashboard
         </Typography>
@@ -507,9 +511,9 @@ const AdminDashboard = () => {
                 sx={{ width: "70%" }}
                 variant="outlined"
               />
-              <Button variant="contained" startIcon={<AddIcon />} onClick={() => handleOpenDialog("employer")}>
+              {/* <Button variant="contained" startIcon={<AddIcon />} onClick={() => handleOpenDialog("employer")}>
                 Add Employer
-              </Button>
+              </Button> */}
             </Box>
             <StyledPaper>
               <Table>
@@ -559,9 +563,9 @@ const AdminDashboard = () => {
                 sx={{ width: "70%" }}
                 variant="outlined"
               />
-              <Button variant="contained" startIcon={<AddIcon />} onClick={() => handleOpenDialog("trainer")}>
+              {/* <Button variant="contained" startIcon={<AddIcon />} onClick={() => handleOpenDialog("trainer")}>
                 Add Trainer
-              </Button>
+              </Button> */}
             </Box>
             <StyledPaper>
               <Table>
@@ -613,9 +617,9 @@ const AdminDashboard = () => {
                 sx={{ width: "70%" }}
                 variant="outlined"
               />
-              <Button variant="contained" startIcon={<AddIcon />} onClick={() => handleOpenDialog("jobSeeker")}>
+              {/* <Button variant="contained" startIcon={<AddIcon />} onClick={() => handleOpenDialog("jobSeeker")}>
                 Add Job Seeker
-              </Button>
+              </Button> */}
             </Box>
             <StyledPaper>
               <Table>
@@ -667,9 +671,9 @@ const AdminDashboard = () => {
                 sx={{ width: "70%" }}
                 variant="outlined"
               />
-              <Button variant="contained" startIcon={<AddIcon />} onClick={() => handleOpenDialog("job")}>
+              {/* <Button variant="contained" startIcon={<AddIcon />} onClick={() => handleOpenDialog("job")}>
                 Add Job
-              </Button>
+              </Button> */}
             </Box>
             <StyledPaper>
               <Table>
@@ -697,13 +701,11 @@ const AdminDashboard = () => {
                               <EditIcon />
                             </StyledIconButton>
                           </Tooltip>
-                          <TableCell align="center">
-                            <Tooltip title="Delete">
-                              <StyledIconButton color="error" onClick={() => deleteJob(j.id)}>
-                                <DeleteIcon />
-                              </StyledIconButton>
-                            </Tooltip>
-                          </TableCell>
+                          <Tooltip title="Delete">
+                            <StyledIconButton color="error" onClick={() => deleteJob(j.id)}>
+                              <DeleteIcon />
+                            </StyledIconButton>
+                          </Tooltip>
                         </TableCell>
                       </StyledTableRow>
                     ))}
@@ -723,9 +725,9 @@ const AdminDashboard = () => {
                 sx={{ width: "70%" }}
                 variant="outlined"
               />
-              <Button variant="contained" startIcon={<AddIcon />} onClick={() => handleOpenDialog("course")}>
+              {/* <Button variant="contained" startIcon={<AddIcon />} onClick={() => handleOpenDialog("course")}>
                 Add Course
-              </Button>
+              </Button> */}
             </Box>
             <StyledPaper>
               <Table>
@@ -777,9 +779,9 @@ const AdminDashboard = () => {
                 sx={{ width: "70%" }}
                 variant="outlined"
               />
-              <Button variant="contained" startIcon={<AddIcon />} onClick={() => handleOpenDialog("enrollment")}>
+              {/* <Button variant="contained" startIcon={<AddIcon />} onClick={() => handleOpenDialog("enrollment")}>
                 Add Enrollment
-              </Button>
+              </Button> */}
             </Box>
             <StyledPaper>
               <Table>
@@ -844,9 +846,9 @@ const AdminDashboard = () => {
                 sx={{ width: "70%" }}
                 variant="outlined"
               />
-              <Button variant="contained" startIcon={<AddIcon />} onClick={() => handleOpenDialog("application")}>
+              {/* <Button variant="contained" startIcon={<AddIcon />} onClick={() => handleOpenDialog("application")}>
                 Add Application
-              </Button>
+              </Button> */}
             </Box>
             <StyledPaper>
               <Table>
