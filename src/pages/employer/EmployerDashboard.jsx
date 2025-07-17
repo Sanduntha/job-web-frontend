@@ -74,6 +74,24 @@ const StyledOutlineButton = styled(Button)(({ theme }) => ({
   },
 }));
 
+const StyledDeleteButton = styled(Button)(({ theme }) => ({
+  borderColor: "#d32f2f",
+  color: "#d32f2f",
+  textTransform: "none",
+  fontWeight: 600,
+  fontFamily: "'Roboto', sans-serif",
+  borderRadius: theme.shape.borderRadius * 2,
+  padding: theme.spacing(1, 2),
+  cursor: "pointer",
+  transition: "all 0.3s ease",
+  "&:hover": {
+    borderColor: "#b71c1c",
+    color: "#b71c1c",
+    transform: "scale(1.05)",
+    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.2)",
+  },
+}));
+
 const StyledTextField = styled(TextField)(({ theme }) => ({
   marginBottom: theme.spacing(2),
   "& .MuiOutlinedInput-root": {
@@ -117,6 +135,8 @@ const EmployerDashboard = () => {
   const { user } = useAuth();
   const [jobs, setJobs] = useState([]);
   const [open, setOpen] = useState(false);
+  const [isEdit, setIsEdit] = useState(false);
+  const [editJobId, setEditJobId] = useState(null);
   const [form, setForm] = useState({
     title: "",
     location: "",
@@ -129,34 +149,33 @@ const EmployerDashboard = () => {
   const [selectedJobTitle, setSelectedJobTitle] = useState("");
   const [applicationCounts, setApplicationCounts] = useState({});
 
-
   const fetchJobs = async () => {
-  try {
-    const employerId = localStorage.getItem("employerId");
-    if (!employerId) {
-      console.warn("No employer ID in localStorage");
-      return;
-    }
-    const res = await axiosInstance.get(`/jobs/employer/${employerId}`);
-    setJobs(res.data);
+    try {
+      const employerId = localStorage.getItem("employerId");
+      if (!employerId) {
+        console.warn("No employer ID in localStorage");
+        return;
+      }
+      const res = await axiosInstance.get(`/jobs/employer/${employerId}`);
+      setJobs(res.data);
 
-    // Fetch application counts for each job
-    const counts = {};
-    await Promise.all(
-      res.data.map(async (job) => {
-        try {
-          const countRes = await axiosInstance.get(`/applications/count/job/${job.id}`);
-          counts[job.id] = countRes.data.count;
-        } catch {
-          counts[job.id] = 0;
-        }
-      })
-    );
-    setApplicationCounts(counts);
-  } catch (err) {
-    console.error("Failed to load jobs", err);
-  }
-};
+      // Fetch application counts for each job
+      const counts = {};
+      await Promise.all(
+        res.data.map(async (job) => {
+          try {
+            const countRes = await axiosInstance.get(`/applications/count/job/${job.id}`);
+            counts[job.id] = countRes.data.count;
+          } catch {
+            counts[job.id] = 0;
+          }
+        })
+      );
+      setApplicationCounts(counts);
+    } catch (err) {
+      console.error("Failed to load jobs", err);
+    }
+  };
 
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -188,6 +207,72 @@ const EmployerDashboard = () => {
       Swal.fire("Error", err.response?.data || "Failed to post job", "error");
       console.error(err);
     }
+  };
+
+  const handleEditOpen = (job) => {
+    setForm({
+      title: job.title,
+      location: job.location,
+      salary: job.salary || "",
+      companyName: job.companyName,
+      description: job.description,
+    });
+    setEditJobId(job.id);
+    setIsEdit(true);
+    setOpen(true);
+  };
+
+  const handleEditSubmit = async () => {
+    const employerId = localStorage.getItem("employerId");
+    if (!employerId) {
+      Swal.fire("Error", "Employer ID not found. Please register your profile first.", "error");
+      return;
+    }
+
+    try {
+      await axiosInstance.put(`/jobs/update/${editJobId}`, {
+        ...form,
+        employerId,
+      });
+
+      Swal.fire("Success", "Job updated successfully", "success");
+      setForm({
+        title: "",
+        location: "",
+        salary: "",
+        companyName: "",
+        description: "",
+      });
+      setOpen(false);
+      setIsEdit(false);
+      setEditJobId(null);
+      fetchJobs();
+    } catch (err) {
+      Swal.fire("Error", err.response?.data || "Failed to update job", "error");
+      console.error(err);
+    }
+  };
+
+  const handleDelete = async (jobId, jobTitle) => {
+    Swal.fire({
+      title: `Are you sure you want to delete "${jobTitle}"?`,
+      text: "This action will also delete all related applications and cannot be undone.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, delete it!",
+      cancelButtonText: "Cancel",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await axiosInstance.delete(`/jobs/${jobId}`);
+          Swal.fire("Success", "Job deleted successfully", "success");
+          fetchJobs();
+        } catch (err) {
+          Swal.fire("Error", err.response?.data || "Failed to delete job", "error");
+          console.error(err);
+        }
+      }
+    });
   };
 
   const viewApplicants = async (jobId, jobTitle) => {
@@ -223,47 +308,69 @@ const EmployerDashboard = () => {
         Employer Dashboard
       </Typography>
 
-      <StyledButton variant="contained" onClick={() => setOpen(true)}>
+      <StyledButton variant="contained" onClick={() => { setIsEdit(false); setForm({ title: "", location: "", salary: "", companyName: "", description: "" }); setOpen(true); }}>
         Post New Job
       </StyledButton>
 
-    <Box mt={3}>
-  {jobs.map((job) => (
-    <StyledCard key={job.id}>
-      <CardContent>
-        <Typography variant="h6" sx={{ color: "#1565c0" }}>
-          {job.title}
-        </Typography>
-        <Typography sx={{ color: "#555" }}>{job.description}</Typography>
-        <Typography><strong>Location:</strong> {job.location}</Typography>
-        <Typography><strong>Salary:</strong> ${job.salary || "Not specified"}</Typography>
-        <Typography><strong>Company:</strong> {job.companyName}</Typography>
-        <Typography><strong>Applicants:</strong> {applicationCounts[job.id] || 0}</Typography>
-        <StyledOutlineButton
-          onClick={() => viewApplicants(job.id, job.title)}
-          variant="outlined"
-          sx={{ mt: 1 }}
-        >
-          View Applicants
-        </StyledOutlineButton>
-      </CardContent>
-    </StyledCard>
-  ))}
-</Box>
+      <Box mt={3}>
+        {jobs.map((job) => (
+          <StyledCard key={job.id}>
+            <CardContent>
+              <Typography variant="h6" sx={{ color: "#1565c0" }}>
+                {job.title}
+              </Typography>
+              <Typography sx={{ color: "#555" }}>{job.description}</Typography>
+              <Typography><strong>Location:</strong> {job.location}</Typography>
+              <Typography><strong>Salary:</strong> ${job.salary || "Not specified"}</Typography>
+              <Typography><strong>Company:</strong> {job.companyName}</Typography>
+              <Typography><strong>Applicants:</strong> {applicationCounts[job.id] || 0}</Typography>
+              <Box sx={{ display: "flex", gap: 1, mt: 1 }}>
+                <StyledOutlineButton
+                  onClick={() => viewApplicants(job.id, job.title)}
+                  variant="outlined"
+                >
+                  View Applicants
+                </StyledOutlineButton>
+                <StyledOutlineButton
+                  onClick={() => handleEditOpen(job)}
+                  variant="outlined"
+                >
+                  Edit Job
+                </StyledOutlineButton>
+                <StyledDeleteButton
+                  onClick={() => handleDelete(job.id, job.title)}
+                  variant="outlined"
+                >
+                  Delete Job
+                </StyledDeleteButton>
+              </Box>
+            </CardContent>
+          </StyledCard>
+        ))}
+      </Box>
 
-
-      {/* Dialog: Post Job */}
-      <StyledDialog open={open} onClose={() => setOpen(false)}>
+      {/* Dialog: Post or Edit Job */}
+      <StyledDialog open={open} onClose={() => { setOpen(false); setIsEdit(false); setEditJobId(null); }}>
         <DialogTitle sx={{ color: "#1565c0" }}>
-          Post a New Job
+          {isEdit ? "Edit Job" : "Post a New Job"}
         </DialogTitle>
         <DialogContent>
+          {isEdit && (
+            <StyledTextField
+              label="ID"
+              name="id"
+              fullWidth
+              value={editJobId || ""}
+              InputProps={{ readOnly: true }}
+            />
+          )}
           <StyledTextField
             label="Title"
             name="title"
             fullWidth
             value={form.title}
             onChange={handleChange}
+            required
           />
           <StyledTextField
             label="Location"
@@ -298,10 +405,15 @@ const EmployerDashboard = () => {
           />
         </DialogContent>
         <DialogActions>
-          <StyledButton onClick={handleSubmit} variant="contained">
-            Submit
+          <StyledButton
+            onClick={isEdit ? handleEditSubmit : handleSubmit}
+            variant="contained"
+          >
+            {isEdit ? "Update" : "Submit"}
           </StyledButton>
-          <StyledOutlineButton onClick={() => setOpen(false)}>
+          <StyledOutlineButton
+            onClick={() => { setOpen(false); setIsEdit(false); setEditJobId(null); }}
+          >
             Cancel
           </StyledOutlineButton>
         </DialogActions>

@@ -23,7 +23,7 @@ import Swal from "sweetalert2";
 import axios from "axios";
 import { useAuth } from "../../context/AuthContext";
 
-// Styled Components (copy these from your original code)
+// Styled Components
 const StyledContainer = styled(Container)(({ theme }) => ({
   padding: theme.spacing(4),
   backgroundColor: "#f0f4f8",
@@ -179,6 +179,16 @@ const TrainerDashboard = () => {
   const [selectedCourseId, setSelectedCourseId] = useState(null);
   const [enrollments, setEnrollments] = useState([]);
 
+  // Edit dialog states
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [editForm, setEditForm] = useState({
+    id: null,
+    title: "",
+    duration: "",
+    description: "",
+    fee: "",
+  });
+
   useEffect(() => {
     const loadTrainerProfile = async () => {
       try {
@@ -244,10 +254,10 @@ const TrainerDashboard = () => {
     setForm({ title: "", duration: "", description: "", fee: "" });
   };
 
-  // Fetch enrollments for selected course
+  // Enrollment dialog handlers
   const handleViewEnrollments = async (courseId) => {
     try {
-      const res = await axios.get(`http://localhost:8080/api/enrollments/course/${courseId}`); // Backend API to get enrollments for course
+      const res = await axios.get(`http://localhost:8080/api/enrollments/course/${courseId}`); 
       setEnrollments(res.data);
       setSelectedCourseId(courseId);
       setEnrollmentOpen(true);
@@ -260,6 +270,49 @@ const TrainerDashboard = () => {
     setEnrollmentOpen(false);
     setEnrollments([]);
     setSelectedCourseId(null);
+  };
+
+  // Edit dialog handlers
+  const handleOpenEditDialog = (course) => {
+    setEditForm({
+      id: course.id,
+      title: course.title,
+      duration: course.duration,
+      description: course.description,
+      fee: course.fee,
+    });
+    setEditDialogOpen(true);
+  };
+
+  const handleCloseEditDialog = () => {
+    setEditDialogOpen(false);
+    setEditForm({ id: null, title: "", duration: "", description: "", fee: "" });
+  };
+
+  const handleEditChange = (e) => {
+    setEditForm({ ...editForm, [e.target.name]: e.target.value });
+  };
+
+  const handleUpdateCourse = async (e) => {
+    e.preventDefault();
+    try {
+      await axios.put(`http://localhost:8080/api/courses/${editForm.id}`, {
+        title: editForm.title,
+        duration: editForm.duration,
+        description: editForm.description,
+        fee: parseFloat(editForm.fee),
+      });
+
+      Swal.fire("Success", "Course updated!", "success");
+      setEditDialogOpen(false);
+
+      if (trainerId) {
+        const res = await axios.get(`http://localhost:8080/api/courses/trainer/${trainerId}/earnings`);
+        setCourses(res.data);
+      }
+    } catch (err) {
+      Swal.fire("Error", err.response?.data || "Failed to update course", "error");
+    }
   };
 
   return (
@@ -332,6 +385,60 @@ const TrainerDashboard = () => {
         </DialogContent>
       </StyledDialog>
 
+      {/* Edit Course Dialog */}
+      <StyledDialog open={editDialogOpen} onClose={handleCloseEditDialog} maxWidth="sm" fullWidth>
+        <DialogTitle sx={{ fontFamily: "'Roboto', sans-serif", color: "#1565c0" }}>
+          Edit Course
+        </DialogTitle>
+        <DialogContent>
+          <form onSubmit={handleUpdateCourse}>
+            <StyledTextField
+              fullWidth
+              label="Course Title"
+              name="title"
+              value={editForm.title}
+              onChange={handleEditChange}
+              margin="normal"
+              required
+            />
+            <StyledTextField
+              fullWidth
+              label="Duration"
+              name="duration"
+              value={editForm.duration}
+              onChange={handleEditChange}
+              margin="normal"
+              required
+            />
+            <StyledTextField
+              fullWidth
+              label="Description"
+              name="description"
+              multiline
+              rows={4}
+              value={editForm.description}
+              onChange={handleEditChange}
+              margin="normal"
+              required
+            />
+            <StyledTextField
+              fullWidth
+              label="Course Fee"
+              name="fee"
+              type="number"
+              value={editForm.fee}
+              onChange={handleEditChange}
+              margin="normal"
+              required
+            />
+            <DialogActions>
+              <StyledSecondaryButton onClick={handleCloseEditDialog}>Cancel</StyledSecondaryButton>
+              <StyledButton type="submit">Update Course</StyledButton>
+            </DialogActions>
+          </form>
+        </DialogContent>
+      </StyledDialog>
+
       {/* Courses and Earnings Section */}
       <StyledPaper>
         <Typography variant="h5" sx={{ fontFamily: "'Roboto', sans-serif", color: "#1565c0", mb: 2 }}>
@@ -366,10 +473,9 @@ const TrainerDashboard = () => {
               <Grid item xs={1.5} sx={{ minWidth: "100px", maxWidth: "100px" }}>
                 <StyledHeaderTypography>Revenue</StyledHeaderTypography>
               </Grid>
-              <Grid item xs={1} sx={{ minWidth: "100px", maxWidth: "100px" }}>
-                <StyledHeaderTypography>View</StyledHeaderTypography>
+              <Grid item xs={2} sx={{ minWidth: "150px", maxWidth: "150px", display: "flex", gap: 1 }}>
+                <StyledHeaderTypography>Actions</StyledHeaderTypography>
               </Grid>
-              
             </Grid>
             <Divider sx={{ mb: 2 }} />
             {courses.map((course) => (
@@ -391,15 +497,16 @@ const TrainerDashboard = () => {
                     <Grid item xs={1} sx={{ minWidth: "100px", maxWidth: "100px" }}>
                       <StyledTypography>{course.enrollmentCount || 0}</StyledTypography>
                     </Grid>
-                   
                     <Grid item xs={1.5} sx={{ minWidth: "100px", maxWidth: "100px" }}>
                       <StyledTypography>LKR {course.totalAmount || 0}</StyledTypography>
                     </Grid>
-
-                     <Grid item xs={1} sx={{ minWidth: "100px", maxWidth: "100px" }}>
+                    <Grid item xs={2} sx={{ minWidth: "150px", maxWidth: "150px", display: "flex", gap: 1 }}>
                       <StyledButton size="small" onClick={() => handleViewEnrollments(course.id)}>
                         View
                       </StyledButton>
+                      <StyledSecondaryButton size="small" onClick={() => handleOpenEditDialog(course)}>
+                        Edit
+                      </StyledSecondaryButton>
                     </Grid>
                   </Grid>
                 </StyledCardContent>
@@ -418,27 +525,23 @@ const TrainerDashboard = () => {
           {enrollments.length === 0 ? (
             <Typography>No enrollments found.</Typography>
           ) : (
-           <List>
-  {enrollments.map((enrollment) => (
-    <ListItem key={`${enrollment.courseId}-${enrollment.jobSeekerId}`} divider>
-      <ListItemText
-        primary={enrollment.jobSeeker?.name || "Unnamed"}
-        secondary={
-          <>
-            <Typography component="span" variant="body2" color="textPrimary">
-              Contact: {enrollment.jobSeeker?.contactNumber || "N/A"}
-            </Typography>
-            <br />
-            {/* <Typography component="span" variant="body2" color="textPrimary">
-              User ID: {enrollment.jobSeeker?.userId || "N/A"}
-            </Typography> */}
-          </>
-        }
-      />
-    </ListItem>
-  ))}
-</List>
-
+            <List>
+              {enrollments.map((enrollment) => (
+                <ListItem key={`${enrollment.courseId}-${enrollment.jobSeekerId}`} divider>
+                  <ListItemText
+                    primary={enrollment.jobSeeker?.name || "Unnamed"}
+                    secondary={
+                      <>
+                        <Typography component="span" variant="body2" color="textPrimary">
+                          Contact: {enrollment.jobSeeker?.contactNumber || "N/A"}
+                        </Typography>
+                        <br />
+                      </>
+                    }
+                  />
+                </ListItem>
+              ))}
+            </List>
           )}
         </DialogContent>
         <DialogActions>
