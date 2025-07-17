@@ -32,7 +32,7 @@ function ProfileCheckRoute({ children, role }) {
     if (!user) return;
     async function fetchProfile() {
       try {
-        const res = await fetch(`http://localhost:8081/api/${role}s/user/${user.id}`);
+        const res = await fetch(`http://localhost:8080/api/${role}s/user/${user.id}`);
         // if (res.status === 404) setProfileExists(false);
         // else if (res.ok) setProfileExists(true);
         // else setProfileExists(false);
