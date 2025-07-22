@@ -23,7 +23,6 @@ import Swal from "sweetalert2";
 import axios from "axios";
 import { useAuth } from "../../context/AuthContext";
 
-// Styled Components
 const StyledContainer = styled(Container)(({ theme }) => ({
   padding: theme.spacing(4),
   backgroundColor: "#f0f4f8",
