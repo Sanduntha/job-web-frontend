@@ -1,4 +1,3 @@
-// imports
 import React, { useState, useEffect } from "react";
 import {
   Typography,
@@ -20,7 +19,6 @@ import Swal from "sweetalert2";
 import axios from "axios";
 import { useAuth } from "../../context/AuthContext";
 
-// styled components
 const StyledBox = styled(Box)(({ theme }) => ({
   padding: theme.spacing(4),
   backgroundColor: "#eef5f9",
@@ -62,7 +60,6 @@ const StyledFileLabel = styled("label")(({ theme }) => ({
   cursor: "pointer",
 }));
 
-// main component
 const JobSeekerDashboard = () => {
   const { user } = useAuth();
   const [jobs, setJobs] = useState([]);

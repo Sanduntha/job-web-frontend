@@ -72,14 +72,12 @@ const Login = () => {
       const userData = res.data; // expects full user object including id and token
       login(userData);
 
-      // Navigate based on role
       if (userData.role === "admin") navigate("/admin/dashboard");
       else if (userData.role === "jobseeker") {
         try {
           const res = await axios.get(`http://localhost:8080/api/jobseekers/user/${userData.id}`);
           const jobSeeker = res.data;
 
-          // ✅ Save jobSeekerId to localStorage if found
           if (jobSeeker?.id) {
             localStorage.setItem("jobSeekerId", jobSeeker.id);
             navigate("/jobseeker/dashboard");
@@ -87,7 +85,6 @@ const Login = () => {
             navigate("/jobseeker/register");
           }
         } catch (err) {
-          // 🤖 If job seeker not found, navigate to register
           navigate("/jobseeker/register");
         }
       }
