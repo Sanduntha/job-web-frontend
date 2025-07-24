@@ -159,7 +159,6 @@ const EmployerDashboard = () => {
       const res = await axiosInstance.get(`/jobs/employer/${employerId}`);
       setJobs(res.data);
 
-      // Fetch application counts for each job
       const counts = {};
       await Promise.all(
         res.data.map(async (job) => {
